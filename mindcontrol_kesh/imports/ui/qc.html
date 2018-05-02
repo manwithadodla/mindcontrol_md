@@ -1,0 +1,409 @@
+<template name="view_images">
+
+{{> navbar}}
+
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <ul class="sidebar-nav">
+                <li class="sidebar-brand">
+                     <strong>{{currentQC.name}}</strong> <!--<button class="btn btn-default swapmode"> {{currentMode}} </button>-->
+                </li>
+                <li>
+                     <div class="panel panel-{{doc.quality_check.QC_color}}" >
+  <div class="panel-heading">
+    <h3 class="panel-title" data-toggle="collapse" data-target="#collapseQC">Status: {{doc.quality_check.QC_name}}</h3>
+  </div>
+  <div id="collapseQC" class="panel-collapse collapse" role="tabpanel">
+  <div class="panel-body">
+    <strong>QC status:</strong> {{doc.quality_check.QC_name}}
+    <br>
+    <strong>Last Checked At:</strong> {{doc.checkedAt}}
+    <br>
+    <strong>Last Checked By:</strong> {{doc.checkedBy}}
+    <br>
+    <strong>Notes:</strong> {{doc.quality_check.notes_QC}}
+    <br>
+
+  </div>
+  </div>
+</div>
+                </li>
+
+                <li>
+{{#if showPoints}}
+<div class="panel panel-{{modeCSS.pointColor}}">
+  <div class="panel-heading">
+
+    <!--<h3 class="panel-title swapmode point" data-toggle="collapse" data-target="#collapseLP">Logged Points</h3> -->
+            <table>
+            <th>Logged Points</th>
+        <th><a data-toggle="collapse" data-target="#collapseLP"> <span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span></a></th>
+        <th><a><span class="glyphicon glyphicon-pencil swapmode point"></span></a> </th></table>
+
+
+
+  </div>
+  <div id="collapseLP" class="panel-collapse collapse" role="tabpanel">
+  <div class="panel-body">
+    <table class="table table-hover table-striped">
+          <tr>
+            <th>Coordinate</th>
+            <th>Annotation</th>
+            <th>Logged By</th>
+            <th></th>
+          </tr>
+        {{#each loggedPoints}}
+          <tr>
+            <td><a class="goto_coor"> {{this.world_coor.x}}, {{this.world_coor.y}}, {{this.world_coor.z}} </a> </td>
+            <td>{{> xEditable type="text" success=onPointNote placement="right" value=this.note}}</td>
+            <td>{{this.checkedBy}}</td>
+            <td>
+  <a class="remove-point"> <span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>
+</td>
+          </tr>
+        {{/each}}
+        </table>
+  </div>
+
+   <div class="panel-footer">Shift+click to log points. Annotate points in the table above.</div>
+   </div>
+</div>
+{{/if}}
+                </li>
+                <li>
+{{#if showContours}}
+  <div class="panel panel-{{modeCSS.contourColor}}">
+  <div class="panel-heading">
+    <!--<h4 class="panel-title" > -->
+        <table>
+            <th>Logged Curves</th>
+        <th><a data-toggle="collapse" data-target="#collapseC"> <span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span></a></th>
+        <th><a><span class="glyphicon glyphicon-pencil swapmode contour"></span></a> </th></table>
+        <!--</h4>-->
+  </div>
+  <div id="collapseC" class="panel-collapse collapse" role="tabpanel">
+  <div class="panel-body">
+
+      <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                {{#each loggedContours}}
+
+
+          <div class="panel">
+            <div class="panel-heading" role="tab" id="heading{{@index}}">
+              <h4 class="panel-title">
+                  <table>
+                      <td>{{> xEditable type="text" success=onDrawingNote placement="right" value=this.name}}</td><td></td>
+                      <td> {{this.checkedBy}}</td>
+                      <td> <a id="select_button_group"><span class="glyphicon glyphicon-pencil {{#if (selectedDrawing @index)}} selectedDrawing{{/if}}" aria-hidden="true"></span></a> </td>
+                      <td> <a role="button" id="drawingDropdown" data-toggle="collapse" data-parent="#accordion" href="#collapse{{@index}}" aria-expanded="true" aria-controls="collapseOne">
+                            <span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>
+                            </a></td>
+                      <td><a id="delete_button_group"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a></td>
+                      <td><a class="toggle-visibility">
+                        {{#if visibilityStatus @index}}
+                          <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                        {{else}}
+                          <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
+                        {{/if}}
+                      </a></td>
+                  </table>
+
+              </h4>
+            </div>
+            <div id="collapse{{@index}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{@index}}">
+              <div class="panel-body">
+
+    <table class="table table-hover table-striped">
+          <tr>
+            <th>Coordinate</th>
+            <th>Annotation</th>
+            <!--<th>Logged By</th>-->
+            <th></th>
+          </tr>
+
+          {{#each this.contours}}
+          <tr>
+            <td><a class="goto_cont"> {{this.name}} </a> </td>
+            <td>{{> xEditable type="text" success=onContourNote placement="right" value=this.note}}</td>
+            <!--<td>{{this.checkedBy}}</td>-->
+            <td>
+  <a class="remove-contour"> <span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>
+</td>
+          </tr>
+          {{/each}}
+
+        </table>
+
+              </div>
+            </div>
+          </div>
+
+        {{/each}}
+        </div>
+        <button class="btn btn-success" id="addNewDrawing"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
+  </div>
+   <div class="panel-footer">Shift+click & drag to draw curves. Annotate curves in the table above.</div>
+  </div>
+</div>
+{{/if}}
+                </li>
+                <li>
+  {{#if showPainter}}
+  <div class="panel panel-{{modeCSS.paintColor}}">
+  <div class="panel-heading">
+    <!--<h4 class="panel-title" > -->
+        <table>
+            <th>Painter</th>
+        <th><a data-toggle="collapse" data-target="#collapseP"> <span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span></a></th>
+        <th><a><span class="glyphicon glyphicon-pencil swapmode paint"></span></a> </th>
+        <th>{{paintValue}}</th>
+        {{#if loadPainter}}<th><button type="button" class="btn btn-xs btn-danger" id="loadPainter">Load</button></th>{{/if}}
+        </table>
+        <!--</h4>-->
+  </div>
+  <div id="collapseP" class="panel-collapse collapse" role="tabpanel">
+  <div class="panel-body">
+
+
+    <form class="form-inline">
+      <div class="form-group">
+        <!--<label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>-->
+        <div class="input-group">
+          <div class="input-group-addon"><i class="fa fa-paint-brush"></i></div>
+          <input type="text" class="form-control" id="paintValue" placeholder="Paint Value" value="{{paintValue}}">
+          <!--<div class="input-group-addon">.00</div>-->
+        </div>
+      </div>
+      <button type="button" class="btn btn-default btn-small" id="paintEraser"><span class="glyphicon glyphicon-erase"></span></button>
+      <button type="button" class="btn btn-default btn-small" id="paintPicker"><span class="fa fa-eyedropper"></span></button>
+    </form>
+
+  </div>
+   <div class="panel-footer">Shift+click & drag to paint curves.</div>
+  </div>
+</div>
+{{/if}}
+                </li>
+
+                <li>
+                     {{#if peerUsers}}<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title" data-target="#collapseEdit" data-toggle="collapse">Logged On Users</h3>
+  </div>
+  <div id="collapseEdit" class="panel-collapse collapse in" role="tabpanel">
+    <div class="panel-body">
+
+    {{#each peerUsers}}
+
+    {{username}}
+
+    {{/each}}
+
+
+  </div>
+  </div>
+</div> {{/if}}
+                </li>
+
+                <li>
+                     <div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title" data-target="#collapseEdit" data-toggle="collapse">Save Changes</h3>
+  </div>
+  <div id="collapseEdit" class="panel-collapse collapse in" role="tabpanel">
+    <div class="panel-body" style="text-align: -webkit-center">
+
+
+  <form id="QC_form" class="new-qc">
+
+    <div class = "form-group">
+        <div class="input-group">
+
+<table class="table table-hover table-striped">
+          <tr>{{#if qc_options.pass}}
+            <th>
+                <div class="radio">
+
+      <label>
+        <input type="radio" name="QC" id="options_pass" value="1">
+        <span class=" label label-success" style="font-size:1em;">Pass</span>
+        </label>
+
+    </div>
+    </th>{{/if}}{{#if qc_options.fail}}
+            <th>
+
+              <div class="radio">
+      <label>
+        <input type="radio" name="QC" id="options_fail" value="0">
+        <span class=" label label-danger" style="font-size:1em;">Fail</span>
+      </label>
+
+    </div></th>{{/if}}
+    {{#if qc_options.needs_edits}}
+            <th>    <div class="radio">
+
+      <label>
+        <input type="radio" name="QC" id="options_edit" value="2">
+        <span class=" label label-primary" style="font-size:1em;">Needs Edits</span>
+      </label>
+
+    </div></th>{{/if}}{{#if qc_options.edited}}
+            <th>    <div class="radio">
+      <label>
+        <input type="radio" name="QC" id="options_edited" value="3">
+        <span class=" label label-info" style="font-size:1em;">Edited</span>
+
+      </label>
+    </div></th>{{/if}}
+          </tr>
+</table>
+
+
+
+
+      </div>
+      <div class="input-group">
+        {{#if qc_options.confidence}}
+        <div class="form-space">
+      <label> How confident are you? </label>
+      <div class="form-group">
+        <div class="ticklabels">
+          <span class="first-tick">1</span>
+          <span class="tick">2</span>
+          <span class="tick">3</span>
+          <span class="tick">4</span>
+          <span class="last-tick">5</span>
+        </div>
+        <input
+            id="conf"
+            type="range"
+            min="1"
+            max="5"
+            step="1"
+            value="3"
+            list="steplist"
+            data-orientation="vertical">
+
+        <datalist id="steplist">
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+        </datalist>
+
+      </div>
+      </div>
+      {{/if}}
+
+      {{#if qc_options.assignTo}}
+    <label style="margin-top: 5px;">Assign To: </label>
+    <div class="form-group">
+      <select id="user-assign" name="user_assign" width="100%" class="form-control" multiple="multiple">
+
+          <option disabled="disabled" selected="selected">Assign To</option>
+
+              {{#each user}}
+                  <option value="{{this.username}}">{{this.username}}</option>
+              {{/each}}
+      </select>
+    </div>
+
+
+  <br>
+  {{/if}}
+  {{#if qc_options.notes}}
+      <label  style="margin-top: 15px;">
+        Notes:</label> <textarea class="form-control" rows="3" width="100%" name="notes_QC" id="notes"></textarea>
+  {{/if}}
+    </div>
+    </div>
+<br>
+      <label>
+          <button class="btn btn-primary" type="submit">Save</button>
+      </label>
+  </form>
+
+  </div>
+  </div>
+</div>
+                </li>
+
+            </ul>
+        </div>
+        <!-- /#sidebar-wrapper -->
+
+        <!-- Page Content -->
+
+{{> consentModal}}
+
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+
+                      {{#unless currentUser}}
+                        {{#if consent}}
+                            <div class="alert alert-danger" role="alert"><strong>Please <a onclick="document.getElementById('login-sign-in-link').click()"> log in </a> to edit!</strong></div>
+                        {{else}}
+                        <div class="alert alert-danger" role="alert"><strong>Please sign the <a data-toggle="modal" data-target=".bs-example-modal-lg">consent form</a> and then log in to edit!</strong></div>
+
+                        {{/if}}
+                      {{/unless}}
+
+ <a class="btn btn-default" id="menu-toggle">
+ <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
+ </a>
+ <a class="btn btn-default" id="resize">
+<span class="glyphicon glyphicon-resize-horizontal" aria-hidden="true"></span>
+ </a>
+ <a class="btn btn-default" id="screenshot">
+<span class="glyphicon glyphicon-camera" aria-hidden="true"></span>
+ </a>
+
+  <a class="btn btn-default" id="touchscreen">
+{{#if isTouch}}
+Mode: <span class="glyphicon glyphicon-hand-up" aria-hidden="true"></span>
+
+{{else}}
+Mode: <span class="glyphicon glyphicon-hdd" aria-hidden="true"></span>
+{{/if}}
+  </a>
+
+<!-- Single button -->
+{{#if loadableImages.length}}
+<div class="btn-group">
+  <button type="button" class="btn btn-default dropdown-toggle"
+          data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Loadable Images <span class="caret"></span>
+  </button>
+  <div class="dropdown-menu">
+      <ul>
+          {{#each loadableImages}}
+          <li><a class="dropdown-item load">{{this.name}}</a></li>
+          {{/each}}
+      </ul>
+
+  </div>
+</div>{{/if}}
+                    Logging: {{currentMode}} {{#if selectedDrawingName}}, drawing on {{selectedDrawingName}} {{/if}}
+
+                    {{#if nextImage}}
+                     <a class="btn btn-primary" style="float:right" id="next" href="{{nextImage}}"> Next Image </a>
+                    {{/if}}
+
+                    <br><br>
+                    <div id="viewer" width="500px"></div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /#page-content-wrapper -->
+
+    </div>
+
+</template>

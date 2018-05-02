@@ -1,0 +1,102 @@
+<template name="navbar">
+     <nav class="navbar navbar-inverse navbar-fixed-top">
+
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">NFB</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="/">Home!</a></li>
+
+            <li><a>{{> loginButtons}}</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+
+    </nav>
+</template>
+
+<template name="main_body" data-spy="scroll" data-target=".bs-docs-sidebar">
+
+    <div class="all_stuff">
+    {{> navbar}}
+
+
+    <div class="sidebar_and_content">
+
+      {{> Template.dynamic template=sidebar_content}}
+
+      <div class="col-sm-8 col-md-9 col-lg-9">
+        <div class="row">
+        {{#if use_custom}}
+        {{> custom}}
+        {{/if}}
+
+        <br>
+
+        {{>Template.dynamic template=content}}
+
+        </div>
+
+      </div>
+
+    </div> <!--End Row-->
+
+{{> footer}}
+</div>
+<!--{{> qc_modal}}-->
+
+</template>
+
+<template name="tasks">
+
+{{> tabular table=TabularTables.task selector=selector class="table table-striped table-bordered table-condensed"}}
+
+</template>
+
+<template name="footer">
+
+  <div class="myfooter">
+    <div id="">
+
+        <div class="row">
+          <div class="col-md-12" style="padding-top: 35px;">
+            <p>For more information on Mindcontrol, see:</p>
+            <p>
+              <img style="width:18px;" src="/GitHub-Mark-32px.png"> &nbsp;
+              <a href="https://github.com/akeshavan/mindcontrol">Source code on GitHub</a>
+            </p>
+            <p>
+              <img style="width:36px;" src="/Slack_Mark_Monochrome_Black.svg">
+              <a href="https://brainhack.slack.com">Join the #mindcontrol channel on the brainhack Slack</a>
+            </p>
+
+            <p><span class="glyphicon glyphicon-book" aria-hidden="true"></span> &nbsp;
+            <a href="http://www.sciencedirect.com/science/article/pii/S1053811917302707?via%3Dihub">
+              Keshavan, Anisha, et al.
+              "Mindcontrol: A web application for brain segmentation quality control."
+               NeuroImage (2017).</a>
+             </p>
+
+          </div>
+        </div>
+
+    </div>
+  </div>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-112394671-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-112394671-1');
+</script>
+
+</template>
