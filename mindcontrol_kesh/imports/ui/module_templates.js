@@ -43,27 +43,28 @@ get_metrics = function(entry_type){
     Meteor.call("get_metric_names", entry_type, function(error, result){
             Session.set(entry_type+"_metrics", result)
         })
+        // var metrics = Session.get(entry_type+"_metrics")
+        // var metric_labels = []
+        // for(var i=0; i<metrics.length-1; i++){
+        //     metric_labels.push(metrics[i]+"- QL")
+        // }
+        // return metric_labels
         return Session.get(entry_type+"_metrics")
 }
 
-render_barplot = function(entry_type){
-    var metric = Session.get("current_"+entry_type)
-    if(metric = null){
-      var all_metrics = Session.get(entry_type+"_metrics")
-      if(all_metrics != null){
-        Session.set("current_"+entry_type, all_metrics[0])
-      }
-    }
-
-    if(metric != null){
-      var filer = get_filter(entry_type)
-      Meteor.call("getBarplotData", entry_type, metric, filter, function(error, result){
-        var data = result["barplot"]
-        if(data.length){
-          do_d3_barplot(data, metric, "#d3vis_"+entry_type, entry_type)
+get_metrics_labels = function(entry_type){
+    Meteor.call("get_metric_labels", entry_type, function(error, result){
+            Session.set(entry_type+"_metrics", result)
+        })
+        var metrics = Session.get(entry_type+"_metrics")
+        
+        
+        var metric_labels = []
+        for(var i=0; i<metrics.length; i++){
+            metric_labels.push(metrics[i])
         }
-      });
-    }
+        return metric_labels
+        //return Session.get(entry_type+"_metrics")
 }
 
 render_histogram = function(entry_type){
@@ -79,13 +80,15 @@ render_histogram = function(entry_type){
                 if (metric != null){
                     var filter = get_filter(entry_type)
                     //console.log("filter is", filter)
-                    Meteor.call("getHistogramData", entry_type, metric, 20, filter, function(error, result){
+                    Meteor.call("getHistogramData", entry_type, metric, filter, function(error, result){
 
                     var data = result["histogram"]
                     var minval = result["minval"]
                     var maxval = result["maxval"]
+                    var bins = result["bins"]
+
                     if (data.length){
-                        do_d3_histogram(data, minval, maxval, metric, "#d3vis_"+entry_type, entry_type)
+                        do_d3_histogram(data, bins, minval, maxval, metric, "#d3vis_"+entry_type, entry_type)
                     }
                     else{
                         console.log("attempt to clear histogram here")
@@ -118,22 +121,19 @@ Template.module.helpers({
   date_histogram: function(){
     return this.graph_type == "datehist"
   },
-  barplot: function(){
-    return this.graph_type == "barplot"
-  },
   metric: function(){
-          return get_metrics(this.entry_type)
+          return get_metrics_labels(this.entry_type)
       },
   currentMetric: function(){
-          return Session.get("current_"+this.entry_type)
+          return Session.get("current_"+this.entry_type.split('- ')[0])
       }
 })
 
 Template.module.events({
  "change #metric-select": function(event, template){
      var metric = $(event.currentTarget).val()
-     console.log("metric: ", metric)
-     Session.set("current_"+this.entry_type, metric)
+     console.log("metric: ", metric.split('- ')[0])
+     Session.set("current_"+this.entry_type, metric.split('- ')[0])
  },
  "click .clouder": function(event, template){
    var cmd = Meteor.settings.public.clouder_cmd
@@ -156,10 +156,6 @@ Template.base.rendered = function(){
           Meteor.call("getDateHist", function(error, result){
               do_d3_date_histogram(result, "#d3vis_date_"+self.entry_type)
               })
-        }
-        else if (self.graph_type == "barplot") {
-          console.log("rendering barplot", self.entry_type)
-          render_barplot(self.entry_type)
         }
       })
   });
