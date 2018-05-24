@@ -27,14 +27,8 @@ Meteor.methods({
           else{
               no_null[metric_name] = {$ne: null}
           }
-          
-          //console.log("NONULL", no_null)
-          //check if string is a time that matches the format: 00:00:00 AM/PM
-          function validate(str){
-              return str.match(/^([0-9]{1,2}:[0-5]{1}[0-9]{1}:[0-5]{1}[0-9]{1} [AP][M])$/g) !== null;
-          }
 
-
+          console.log("NONULL", no_null)
           var metric_element = Subjects.find(no_null, {sort: [[metric_name, "descending"]], limit: 1}).fetch()[0]["metrics"][metric]
 
           //console.log("DATATYPE: " , typeof metric_element)
@@ -162,10 +156,6 @@ Meteor.methods({
 
 
             if (settings.metric_names){
-            //   var temp = []
-            //   for(var i=0; i<settings.metric_names.length-1; i++)
-            //     temp.push(settings.metric_names[i]+" question_label")
-            //   return temp
               return settings.metric_names     
             }
             no_null= {metrics: {$ne: {}}, "entry_type": entry_type}
@@ -196,25 +186,44 @@ Meteor.methods({
             //console.log("labels_dict", labels_dict)
 
 
-
+            var temp = []
             if (settings.metric_names){
-              var temp = []
+              
               for(var i=0; i<settings.metric_names.length; i++)
                 temp.push(settings.metric_names[i]+"- "+labels_dict[settings.metric_names[i]])
               return temp
               //return settings.metric_names     
             }
+
+
             no_null= {metrics: {$ne: {}}, "entry_type": entry_type}
             var dude= Subjects.findOne(no_null)
+
             if (dude){
-                return Object.keys(dude["metrics"])
+                var keys = Object.keys(dude["metrics"])
+
+                for(var i=0; i<keys.length; i++)
+                  temp.push(keys[i]+"- "+labels_dict[keys[i]]) 
+                return temp
             }
             //console.log("DUDE IS", dude)
 
         }
 
     },
+    add_assessment_subjects: function(entry_type){
+      if (Meteor.isServer){
+          var fs=require('fs');
+          var file='/Users/md35727/spyder_workspace/'+entry_type+'.json'
+          var data=fs.readFileSync(file, 'utf8');
+          var myobject=JSON.parse(data);
 
+          myobject.forEach(function(val,idx,array){
+                  console.log(val.subject_id)
+                  Subjects.insert(val)
+          })
+      }
+    },
     save_query: function(name, gSelector){
         var topush = {"name": name, "selector": gSelector}
         Meteor.users.update(this.userId, {$push: {queries: topush}})

@@ -43,12 +43,6 @@ get_metrics = function(entry_type){
     Meteor.call("get_metric_names", entry_type, function(error, result){
             Session.set(entry_type+"_metrics", result)
         })
-        // var metrics = Session.get(entry_type+"_metrics")
-        // var metric_labels = []
-        // for(var i=0; i<metrics.length-1; i++){
-        //     metric_labels.push(metrics[i]+"- QL")
-        // }
-        // return metric_labels
         return Session.get(entry_type+"_metrics")
 }
 
@@ -58,13 +52,11 @@ get_metrics_labels = function(entry_type){
         })
         var metrics = Session.get(entry_type+"_metrics")
         
-        
         var metric_labels = []
         for(var i=0; i<metrics.length; i++){
             metric_labels.push(metrics[i])
         }
         return metric_labels
-        //return Session.get(entry_type+"_metrics")
 }
 
 render_histogram = function(entry_type){
@@ -105,6 +97,18 @@ Template.base.helpers({
   modules: function(){
     console.log(Meteor.settings.public.modules)
     return Meteor.settings.public.modules
+  },
+  assessment: function(){
+    console.log("retrieving assessment data", Session.get("Assessment"))
+    // var data;
+    // Meteor.settings.public.modules.forEach(function(self, idx, arr){
+    //     if (self.entry_type == Session.get("Assessment")){
+    //       console.log("rendering something", self.entry_type)
+    //       data = self
+    //     }
+    //   })
+    // return data
+    return Meteor.settings.public.modules.find(function(o){return o.name == Session.get("Assessment")})
   }
 })
 
@@ -148,7 +152,7 @@ Template.base.rendered = function(){
 
   this.autorun(function() {
       Meteor.settings.public.modules.forEach(function(self, idx, arr){
-        if (self.graph_type == "histogram"){
+        if (self.graph_type == "histogram" && self.name == Session.get("Assessment")){
           console.log("rendering histogram", self.entry_type)
           render_histogram(self.entry_type)
         }
@@ -166,4 +170,15 @@ Template.body_sidebar.helpers({
   modules: function(){
     return Meteor.settings.public.modules
   }
+})
+
+Template.body_sidebar.events({
+ "change #module-select": function(event, template){
+     var module_name = $(event.currentTarget).val()
+     console.log("assessment: ", module_name)
+     Session.set("Assessment", module_name)
+     // Meteor.call("add_assessment_subjects", mod, function(error, result){
+     //        console.log("add assessment called")
+     //    })
+ }
 })

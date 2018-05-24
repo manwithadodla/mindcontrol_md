@@ -1,16 +1,12 @@
 <template name="base">
 
-
-    {{#each modules}}
-      {{> Template.dynamic template="module" data=this}}
-    {{/each}}
-
+    {{> Template.dynamic template="module" data=assessment}}
 
 </template>
 
 <template name="module">
 
-  <h1 id="{{this.name}}">{{this.name}}</h1>
+  <h1 id="{{this.entry_type}}">{{this.entry_type}}</h1>
 
   {{#if histogram}}
     Selected Metric: {{currentMetric}}
@@ -20,7 +16,7 @@
     </div>
 
     <select id="metric-select" class="form-control">
-    <option disabled="disabled" selected="selected" >Please Select</option>
+    <option disabled="disabled" selected="selected">Please Select</option>
     {{#each metric}}
         <option value="{{this}}">{{this}}</option>
     {{/each}}
@@ -52,14 +48,22 @@
       <h5> Leaderboard </h5>
       {{> leaderboard }}
       <div id="sticky" class="">
+
         <h5> Modules </h5>
         <ul class="nav nav-list bs-docs-sidenav">
 
-          {{#each modules}}
+          <!-- {{#each modules}}
             <li><a href="#{{this.name}}">
                 <span class="badge badge-inverse"></span> {{this.name}}</a>
             </li>
-          {{/each}}
+          {{/each}} -->
+
+        <select id="module-select" class="form-control">
+        <option disabled="disabled" selected="selected">Select Assessment</option>
+        {{#each modules}}
+            <option value="{{this.name}}">{{this.name}}</option>
+        {{/each}}
+        </select>
 
         </ul>
 
